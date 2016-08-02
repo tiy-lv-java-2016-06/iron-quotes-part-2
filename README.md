@@ -25,3 +25,4 @@ Let's take the Iron Quotes project up a level and make it much more like a REST 
 ## Resources
 * [Github Repo](https://github.com/tiy-lv-java-2016-06/iron-quotes-part-2)
 * [Deploying with Heroku](https://devcenter.heroku.com/articles/deploying-spring-boot-apps-to-heroku)
+* [Heroku Toolbelt](https://toolbelt.heroku.com/)
