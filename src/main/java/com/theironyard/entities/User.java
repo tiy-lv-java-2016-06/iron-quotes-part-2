@@ -55,8 +55,8 @@ public class User {
         setTokenAndExpiration();
     }
 
-    public User(String username, String password) {
-        this.name = username;
+    public User(String name, String password) {
+        this.name = name;
         this.password = password;
         setTokenAndExpiration();
     }
@@ -69,12 +69,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
+    public String getName() {
         return name;
     }
 
-    public void setUsername(String username) {
-        this.name = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {

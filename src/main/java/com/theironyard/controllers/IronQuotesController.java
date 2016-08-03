@@ -48,9 +48,9 @@ public class IronQuotesController {
     public User createUser(@RequestBody UserCommand command)
             throws PasswordStorage.CannotPerformOperationException, PasswordStorage.InvalidHashException {
 
-        User user = userRepository.findFirstByName(command.getUsername());
+        User user = userRepository.findFirstByName(command.getName());
         if(user == null){
-            user = new User(command.getUsername(), PasswordStorage.createHash(command.getPassword()));
+            user = new User(command.getName(), PasswordStorage.createHash(command.getPassword()));
             userRepository.save(user);
         }
         else if(!PasswordStorage.verifyPassword(command.getPassword(), user.getPassword())){
@@ -60,7 +60,7 @@ public class IronQuotesController {
     }
 
     public User checkLogin(UserCommand command) throws Exception{
-        User user = userRepository.findFirstByName(command.getUsername());
+        User user = userRepository.findFirstByName(command.getName());
         if(user == null){
             throw new UserNotFoundException();
         }
