@@ -11,7 +11,7 @@ Let's take the Iron Quotes project up a level and make it much more like a REST 
 * Add a token field to the user which is populated in the constructor.
 * Add an expiration date that is set 30 days in the future whenever the token is created.
 * Add a method to the repository to make it possible to find first record by token
-* Make an endpoint that will take username and password and return a JSON payload of the token.
+* Make an endpoint that will take name and password and return a JSON payload of the token.
 * Make the end points check for a token header and pull the user based on the token to check for authorization
 
 ### Heroku
