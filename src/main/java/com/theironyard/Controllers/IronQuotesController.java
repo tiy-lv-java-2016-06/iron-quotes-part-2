@@ -10,15 +10,12 @@ import com.theironyard.Services.QuoteRepository;
 import com.theironyard.Services.TagRepository;
 import com.theironyard.Services.UserRepository;
 import com.theironyard.exceptions.LoginFailedException;
-import com.theironyard.exceptions.NotLoggedIn;
 import com.theironyard.exceptions.TokenExpiredException;
 import com.theironyard.exceptions.UserNotFoundException;
 import com.theironyard.utilities.PasswordStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +24,9 @@ import java.util.Map;
 /**
  * Created by Nigel on 8/1/16.
  */
+
 @RestController
 public class IronQuotesController {
-    public static final String SESSION_USERNAME = "username";
 
     @Autowired
     UserRepository userRepository;
@@ -40,24 +37,10 @@ public class IronQuotesController {
     @Autowired
     TagRepository tagRepository;
 
-    /*@RequestMapping(path = "/user", method = RequestMethod.POST)
-    public User createUser(@Valid @RequestBody User user, BindingResult bindingResult,
-                          HttpServletResponse response){
-
-        if(bindingResult.hasErrors()){
-            response.setStatus(400);
-            return null;
-        }
-
-        userRepository.save(user);
-        return user;
-    }*/
-
-
     //*********CREATE-PATHS*********//
     @RequestMapping(path = "/quotes", method = RequestMethod.POST)
     public Quote createQuote(@RequestBody Quote quote,
-                             @RequestHeader(value = "Authorization") String auth){
+                             @RequestHeader(value = "Authorization") String auth) {
 
         User user = getUserFromAuth(auth);
 
@@ -71,24 +54,24 @@ public class IronQuotesController {
 
     @RequestMapping(path = "/quotes/{id}/tags", method = RequestMethod.POST)
     public Quote createTag(@PathVariable int id, @RequestBody TagCommand command,
-                           @RequestHeader(value = "Authorization") String auth) throws Exception{
+                           @RequestHeader(value = "Authorization") String auth) throws Exception {
 
-            User user = getUserFromAuth(auth);
-            Quote quote = quoteRepository.getOne(id);
+        User user = getUserFromAuth(auth);
+        Quote quote = quoteRepository.getOne(id);
 
-            if (quote == null) {
-                throw new Exception("Quote doesn't exist");
-            }
+        if (quote == null) {
+            throw new Exception("Quote doesn't exist");
+        }
 
-            Tag tag = tagRepository.findFirstByValue(command.getValue());
-            if (tag == null) {
-                tag = new Tag(command.getValue());
-                tagRepository.save(tag);
-            }
+        Tag tag = tagRepository.findFirstByValue(command.getValue());
+        if (tag == null) {
+            tag = new Tag(command.getValue());
+            tagRepository.save(tag);
+        }
 
-            quote.addTag(tag);
-            quoteRepository.save(quote);
-            return quote;
+        quote.addTag(tag);
+        quoteRepository.save(quote);
+        return quote;
 
     }
 
@@ -156,7 +139,7 @@ public class IronQuotesController {
 
     //*********DELETE-PATHS*********//
     @RequestMapping(path = "/quotes/{id}", method = RequestMethod.DELETE)
-    public List<Quote> deleteQuote(@PathVariable int id, @RequestHeader(value = "Authorization")String auth) throws Exception {
+    public List<Quote> deleteQuote(@PathVariable int id, @RequestHeader(value = "Authorization") String auth) throws Exception {
 
         User user = getUserFromAuth(auth);
         Quote quote = quoteRepository.getOne(id);
@@ -190,12 +173,12 @@ public class IronQuotesController {
 
     //*********LIST-PATHS*********//
     @RequestMapping(path = "/quotes", method = RequestMethod.GET)
-    public List<Quote> getQuotes(){
+    public List<Quote> getQuotes() {
         return quoteRepository.findAll();
     }
 
     @RequestMapping(path = "/tags", method = RequestMethod.GET)
-    public List<Tag> getTags(){
+    public List<Tag> getTags() {
         return tagRepository.findAll();
     }
 
@@ -212,7 +195,7 @@ public class IronQuotesController {
     }
 
     @RequestMapping(path = "/token/regenerate", method = RequestMethod.PUT)
-    public Map regenerateToken(@RequestBody UserCommand command) throws Exception{
+    public Map regenerateToken(@RequestBody UserCommand command) throws Exception {
         User user = checkUser(command);
         String token = user.regenerate();
         Map<String, String> tokenMap = new HashMap<>();
@@ -222,39 +205,38 @@ public class IronQuotesController {
 
     @RequestMapping(path = "/users", method = RequestMethod.POST)
     public User login(@RequestBody UserCommand command) throws Exception {
-        User user = userRepository.findFirstByName(command.getUsername());
+        User user = userRepository.findFirstByName(command.getName());
 
-        if(user == null){
-            user = new User(command.getUsername(), PasswordStorage.createHash(command.getPassword()));
+        if (user == null) {
+            user = new User(command.getName(), PasswordStorage.createHash(command.getPassword()));
             userRepository.save(user);
-        }
-        else if(!PasswordStorage.verifyPassword(command.getPassword(), user.getPassword())){
+        } else if (!PasswordStorage.verifyPassword(command.getPassword(), user.getPassword())) {
             throw new LoginFailedException();
         }
 
         return user;
     }
 
-    public User checkUser(UserCommand command) throws Exception{
-        User user = userRepository.findFirstByName(command.getUsername());
-        if(user == null){
+    public User checkUser(UserCommand command) throws Exception {
+        User user = userRepository.findFirstByName(command.getName());
+        if (user == null) {
             throw new UserNotFoundException();
         }
 
-        if(!PasswordStorage.verifyPassword(command.getPassword(), user.getPassword())){
+        if (!PasswordStorage.verifyPassword(command.getPassword(), user.getPassword())) {
             throw new LoginFailedException();
         }
 
-        if(!user.isTokenValid()){
+        if (!user.isTokenValid()) {
             throw new TokenExpiredException();
         }
 
         return user;
     }
 
-    public User getUserFromAuth(String auth){
+    public User getUserFromAuth(String auth) {
         User user = userRepository.findFirstByToken(auth.split(" ")[1]);
-        if(!user.isTokenValid()){
+        if (!user.isTokenValid()) {
             throw new TokenExpiredException();
         }
         return user;
